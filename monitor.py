@@ -112,8 +112,17 @@ def main():
         print(f"API error: {data.get('Message')}")
         return
 
+    # DEBUG — print every single item from API, no filtering
+    all_items = data.get("Result", {}).get("Obj", [])
+    print(f"Total items from API: {len(all_items)}")
+    for item in all_items:
+        name   = item.get("RewardName", "").strip()
+        status = item.get("Status")
+        ignored = is_ignored(name)
+        print(f"  {'[IGNORED]' if ignored else '[TRACKED]'} {name!r} — status {status}")
+
     new_state = {}
-    for item in data.get("Result", {}).get("Obj", []):
+    for item in all_items:
         name   = item.get("RewardName", "").strip()
         status = item.get("Status")
         if not name or is_ignored(name):
@@ -123,18 +132,16 @@ def main():
         prev = last.get(name)
 
         if status == 1 and prev != 1:
-            # Just came IN STOCK
             print(f"*** IN STOCK: {name} ***")
             send_email(name)
             send_call(name)
         elif status == 3 and prev != 3:
             print(f"Out of stock: {name}")
         elif prev is None:
-            print(f"New item detected: {name} — status {status}")
+            print(f"New item: {name} — status {status}")
 
     save_state(new_state)
 
-    # Commit updated state back to repo so next run has it
     os.system('git config user.email "stockbot@users.noreply.github.com"')
     os.system('git config user.name "Stock Bot"')
     os.system('git add last_state.json')

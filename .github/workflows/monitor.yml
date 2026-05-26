@@ -1,0 +1,40 @@
+name: ASUS Stock Monitor
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'   # runs every 5 minutes
+  workflow_dispatch:          # lets you trigger manually from GitHub UI
+
+permissions:
+  contents: write             # needed to commit state file back
+
+jobs:
+  check-stock:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install requests twilio
+
+      - name: Run stock monitor
+        env:
+          ATICKET:           ${{ secrets.ATICKET }}
+          SESSION_TOKEN:     ${{ secrets.SESSION_TOKEN }}
+          EMAIL_FROM:        ${{ secrets.EMAIL_FROM }}
+          EMAIL_PASSWORD:    ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_TO:          ${{ secrets.EMAIL_TO }}
+          TWILIO_SID:        ${{ secrets.TWILIO_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          CALL_FROM:         ${{ secrets.CALL_FROM }}
+          CALL_TO:           ${{ secrets.CALL_TO }}
+        run: python monitor.py

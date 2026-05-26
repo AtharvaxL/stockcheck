@@ -2,22 +2,19 @@ import requests, os, smtplib, json
 from email.message import EmailMessage
 from twilio.rest import Client
 
-# ── Credentials come from GitHub Secrets ──────────────────
-ATICKET       = os.environ["ATICKET"]
-SESSION_TOKEN = os.environ["SESSION_TOKEN"]
-EMAIL_FROM    = os.environ["EMAIL_FROM"]
-EMAIL_PASSWORD= os.environ["EMAIL_PASSWORD"]
-EMAIL_TO      = os.environ["EMAIL_TO"]
-TWILIO_SID    = os.environ["TWILIO_SID"]
-TWILIO_TOKEN  = os.environ["TWILIO_AUTH_TOKEN"]
-CALL_FROM     = os.environ["CALL_FROM"]   # your Twilio number e.g. +14155551234
-CALL_TO       = os.environ["CALL_TO"]     # your personal number e.g. +919999999999
+ATICKET        = os.environ["ATICKET"]
+SESSION_TOKEN  = os.environ["SESSION_TOKEN"]
+API_KEY        = os.environ["API_KEY"]
+EMAIL_FROM     = os.environ["EMAIL_FROM"]
+EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
+EMAIL_TO       = os.environ["EMAIL_TO"]
+TWILIO_SID     = os.environ["TWILIO_SID"]
+TWILIO_TOKEN   = os.environ["TWILIO_AUTH_TOKEN"]
+CALL_FROM      = os.environ["CALL_FROM"]
+CALL_TO        = os.environ["CALL_TO"]
 
-# ── API Config ────────────────────────────────────────────
 API_URL = "https://rog.asus.com/elite/api/v2/RewardList"
 PARAMS  = {"aticket": ATICKET, "WebsiteCode": "in", "systemCode": "rog"}
-API_KEY = os.environ["API_KEY"]
-
 HEADERS = {
     "accept": "application/json, text/plain, */*",
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -26,28 +23,17 @@ HEADERS = {
 }
 COOKIES = {"aticket": ATICKET, "token": SESSION_TOKEN}
 
-# ── Items to ignore ───────────────────────────────────────
 IGNORED = [
-    # Digital wallpapers & themes
     "wallpaper", "animated", "theme", "background",
-
-    # Discount/voucher codes
     "discount", "voucher", "coupon", "code", "promo",
-
-    # Specific useless reward names from original chat
     "evangelion", "mechatronics", "pinball", "prism",
     "retro", "psychedelic", "mechanize",
-
-    # Other digital junk
     "sticker", "avatar", "badge", "frame", "icon",
     "ringtone", "font", "cursor", "skin",
-
-    # Games
-    "sniper", "elite", "resistance", "bundle game",
+    "sniper", "elite", "resistance",
     "monster hunter",
 ]
 
-# ── State file (tracks last known status between runs) ────
 STATE_FILE = "last_state.json"
 
 def load_state():
@@ -94,11 +80,10 @@ def send_call(item):
             to=CALL_TO,
             from_=CALL_FROM
         )
-        print(f"  [CALL]  Placed for: {item}")
+        print(f"  [CALL] Placed for: {item}")
     except Exception as e:
-        print(f"  [CALL]  Failed: {e}")
+        print(f"  [CALL] Failed: {e}")
 
-# ── Main ──────────────────────────────────────────────────
 def main():
     print("Checking stock...")
     last = load_state()
@@ -115,9 +100,12 @@ def main():
     if data.get("Status") != "0":
         print(f"API error: {data.get('Message')}")
         return
-        
+
+    items = data.get("Result", {}).get("Obj", [])
+    print(f"Total items from API: {len(items)}")
+
     new_state = {}
-    for item in data.get("Result", {}).get("Obj", []):
+    for item in items:
         name   = item.get("RewardName", "").strip()
         status = item.get("Status")
         if not name or is_ignored(name):
@@ -135,6 +123,7 @@ def main():
         elif prev is None:
             print(f"New item: {name} — status {status}")
 
+    print(f"Tracking {len(new_state)} items after filtering")
     save_state(new_state)
 
     os.system('git config user.email "stockbot@users.noreply.github.com"')

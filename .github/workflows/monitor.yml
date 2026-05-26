@@ -30,6 +30,7 @@ jobs:
         env:
           ATICKET:           ${{ secrets.ATICKET }}
           SESSION_TOKEN:     ${{ secrets.SESSION_TOKEN }}
+          API_KEY:           ${{ secrets.API_KEY }}
           EMAIL_FROM:        ${{ secrets.EMAIL_FROM }}
           EMAIL_PASSWORD:    ${{ secrets.EMAIL_PASSWORD }}
           EMAIL_TO:          ${{ secrets.EMAIL_TO }}

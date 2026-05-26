@@ -28,8 +28,19 @@ COOKIES = {"aticket": ATICKET, "token": SESSION_TOKEN}
 
 # ── Items to ignore ───────────────────────────────────────
 IGNORED = [
-    "wallpaper", "animated", "evangelion", "mechatronics",
-    "pinball", "prism", "retro", "psychedelic", "mechanize"
+    # Digital wallpapers & themes
+    "wallpaper", "animated", "theme", "background",
+
+    # Discount/voucher codes
+    "discount", "voucher", "coupon", "code", "promo",
+
+    # Specific useless reward names from original chat
+    "evangelion", "mechatronics", "pinball", "prism",
+    "retro", "psychedelic", "mechanize",
+
+    # Other digital junk
+    "sticker", "avatar", "badge", "frame", "icon",
+    "ringtone", "font", "cursor", "skin",
 ]
 
 # ── State file (tracks last known status between runs) ────

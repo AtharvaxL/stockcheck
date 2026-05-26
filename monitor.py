@@ -41,6 +41,10 @@ IGNORED = [
     # Other digital junk
     "sticker", "avatar", "badge", "frame", "icon",
     "ringtone", "font", "cursor", "skin",
+
+    # Games
+    "sniper", "elite", "resistance", "bundle game",
+    "monster hunter",
 ]
 
 # ── State file (tracks last known status between runs) ────
@@ -111,18 +115,9 @@ def main():
     if data.get("Status") != "0":
         print(f"API error: {data.get('Message')}")
         return
-
-    # DEBUG — print every single item from API, no filtering
-    all_items = data.get("Result", {}).get("Obj", [])
-    print(f"Total items from API: {len(all_items)}")
-    for item in all_items:
-        name   = item.get("RewardName", "").strip()
-        status = item.get("Status")
-        ignored = is_ignored(name)
-        print(f"  {'[IGNORED]' if ignored else '[TRACKED]'} {name!r} — status {status}")
-
+        
     new_state = {}
-    for item in all_items:
+    for item in data.get("Result", {}).get("Obj", []):
         name   = item.get("RewardName", "").strip()
         status = item.get("Status")
         if not name or is_ignored(name):

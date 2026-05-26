@@ -16,9 +16,13 @@ CALL_TO       = os.environ["CALL_TO"]     # your personal number e.g. +919999999
 # ── API Config ────────────────────────────────────────────
 API_URL = "https://rog.asus.com/elite/api/v2/RewardList"
 PARAMS  = {"aticket": ATICKET, "WebsiteCode": "in", "systemCode": "rog"}
+API_KEY = os.environ["API_KEY"]
+
 HEADERS = {
     "accept": "application/json, text/plain, */*",
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "api_key": API_KEY,
+    "token": SESSION_TOKEN,
 }
 COOKIES = {"aticket": ATICKET, "token": SESSION_TOKEN}
 
